@@ -40,7 +40,6 @@ RunUpdate:
 	whr.Send()
 	whr.WaitForResponse()
 	FileAppend, % whr.ResponseText, % appFile
-	whr.Close()
 	sleep 500
 	
 	ScriptFile := A_ScriptFullPath
@@ -52,7 +51,6 @@ RunUpdate:
 	whr.Send()
 	whr.WaitForResponse()
 	FileAppend, % whr.ResponseText, % ScriptFile
-	whr.Close()
 	sleep 500
 	Msgbox, chkNet successfully updated!`n`nThe script will now restart.
 	reload
