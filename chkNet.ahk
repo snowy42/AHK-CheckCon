@@ -12,11 +12,14 @@ Menu, Tray, Add, Reload				, MenuHandler
 Menu, Tray, Add
 Menu, Tray, Add, Exit				, MenuHandler
 
+DllCall("AllocConsole")
+WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
+
 SetTimer, TestNet, % timer
 return
 
 TestNet:
-	if isNetActive(server, ping_Attempts, ping_Timeout, ping_PacketSize, logFile)
+	if isNetActive(server, ping_Attempts, ping_Timeout, ping_PacketSize)
 		editLabel(textSize, ActiveColor, BoldText, ActiveText)
 	else
 		editLabel(textSize, InActiveColor, BoldText, InactiveText)
@@ -51,14 +54,21 @@ OpenSettings:
 return
 
 editLabel(textSize, textColor, textBold, textString) {
-		Gui, Font, % "s" textSize " c" textColor " " ((textBold)?"Bold":""),
-		GuiControl, Font, SetActive
-		GuiControl,,SetActive, % textString	
-	}
+	Gui, Font, % "s" textSize " c" textColor " " ((textBold)?"Bold":""),
+	GuiControl, Font, SetActive
+	GuiControl,,SetActive, % textString	
+}
 
-isNetActive(server, attempts, timeout, packetsize, logFile){
+isNetActive(server, attempts, timeout, packetsize){
 	pingOptions := "-n " attempts " -w " timeout " -l " packetsize
 	pingString 	:= "ping " server " " pingOptions
-	Run, % "cmd.exe /c " pingString " > " logFile,,Hide
-	Return (InStr(FileOpen(logFile,"r").Read(), "Reply from")>0)
+	
+	objShell := ComObjCreate("WScript.Shell")
+	objExec := objShell.Exec(ComSpec " /c " pingString)
+	strStdOut := ""
+	While !objExec.Status
+		Sleep 10
+	cmdResp := objExec.StdOut.ReadAll()
+	
+	Return (InStr(cmdResp, "Reply from")>0)
 }
