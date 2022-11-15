@@ -45,12 +45,12 @@ RunUpdate:
 	ScriptFile := A_ScriptFullPath
 	While FileExist(ScriptFile)
 		FileDelete, % ScriptFile
-	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-	whr.Open("GET", githubchkNetFile, true)
-	whr.SetProxy(2,kcproxy, "")
-	whr.Send()
-	whr.WaitForResponse()
-	FileAppend, % whr.ResponseText, % ScriptFile
+	whr2 := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	whr2.Open("GET", githubchkNetFile, true)
+	whr2.SetProxy(2,kcproxy, "")
+	whr2.Send()
+	whr2.WaitForResponse()
+	FileAppend, % whr2.ResponseText, % ScriptFile
 	sleep 500
 	Msgbox, chkNet successfully updated!`n`nThe script will now restart.
 	reload
