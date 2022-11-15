@@ -45,7 +45,7 @@ MenuHandler:
 		case "Reload":
 			Reload
 		case "Update Script":
-			GoSub RunUpdate
+			GoSub CheckForUpdates
 		case "Exit":
 			ExitApp
 	}
