@@ -1,3 +1,4 @@
+;==================================================== ChkNet ====================================================
 timer			:= -Abs(timer)
 
 Gui, Add, Text, % "vSetActive gOpenSettings w200 h" (textSize*2)
