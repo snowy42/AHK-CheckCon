@@ -9,6 +9,7 @@ Menu, Tray, NoStandard
 Menu, Tray, Add, Open Settings		, MenuHandler
 Menu, Tray, Default, Open Settings
 Menu, Tray, Add, Reload				, MenuHandler
+Menu, Tray, Add, Update Script		, MenuHandler
 Menu, Tray, Add
 Menu, Tray, Add, Exit				, MenuHandler
 
@@ -43,6 +44,8 @@ MenuHandler:
 			GoSub OpenSettings
 		case "Reload":
 			Reload
+		case "Update Script":
+			GoSub RunUpdate
 		case "Exit":
 			ExitApp
 	}
