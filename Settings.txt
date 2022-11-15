@@ -1,0 +1,26 @@
+; ========================================== SETTINGS ========================================== 
+
+ping_Attempts		= 1		; Number of Attempts [Windows default: 4]
+ping_Timeout		= 100 		; Ping timeout (in milliseconds)[Windows default: 4000]
+ping_PacketSize		= 32		; Packet size in bytes [Windows default: 32]
+server			= kcamprod	; Server name/address (can be website)
+timer			= 300		; How often to refresh status (in milliseconds)
+textSize		= 20		; Status label text size
+ActiveText		= Active	; Text to display when connection is active
+InactiveText		= Inactive	; Text to display when connection is inactive
+ActiveColor 		= Green		; Text colour when connection is active
+InactiveColor		= Red		; Text colour when connection is inactive		
+			; ===== Other Colors =====
+			; Any hex code is allowed
+			; 0xFF7F27 = Orange
+			; 0xFFFF00 = Yellow
+			; 0x8000FF = Purple
+			; ========================
+
+BoldText		:= True		; Defines if text is bold or not
+screenPos		:= {x: 1452, y:1035}	
+			; ^  Screen x and y position of text display, 
+			;    defaults is {x: 1452, y:1035} which is  
+			;    on left monitor near system tray
+
+; ==============================================================================================
