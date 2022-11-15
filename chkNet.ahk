@@ -1,74 +1,62 @@
-;==================================================== ChkNet ====================================================
-timer			:= -Abs(timer)
+#SingleInstance Force
+#NoEnv
 
-Gui, Add, Text, % "vSetActive gOpenSettings w200 h" (textSize*2)
-Gui, Show, % "x" screenPos.x " y" screenPos.y
-CoordMode, Pixel, Screen
+updateDismiss 		:= false
+updateTimer			:= -60000
+appFile				:= "app.bin"
 
-Menu, Tray, NoStandard
-Menu, Tray, Add, Open Settings		, MenuHandler
-Menu, Tray, Default, Open Settings
-Menu, Tray, Add, Reload				, MenuHandler
-Menu, Tray, Add
-Menu, Tray, Add, Exit				, MenuHandler
+githubAppFile		:= "https://raw.githubusercontent.com/snowy42/AHK-CheckCon/main/chkNet.ahk"
+githubRepos			:= "https://github.com/snowy42/AHK-CheckCon"
+kcProxy				:= "http://kcproxy-civic.kingborough.local:8080"
 
-DllCall("AllocConsole")
-WinHide % "ahk_id " DllCall("GetConsoleWindow", "ptr")
+startVer 			:= checkVersion(githubRepos,kcProxy)
 
-SetTimer, TestNet, % timer
-return
+SetTimer checkForUpdates, % updateTimer
 
-TestNet:
-	if isNetActive(server, ping_Attempts, ping_Timeout, ping_PacketSize)
-		editLabel(textSize, ActiveColor, BoldText, ActiveText)
-	else
-		editLabel(textSize, InActiveColor, BoldText, InactiveText)
-	PixelGetColor, tColor, screenPos.x, screenPos.y+20, RGB
-	Gui +LastFound
-	WinGet, iColor, TransColor
-	if (tColor != iColor) {
-		Gui, Color, % tColor
-		Gui +LastFound
-		WinSet, TransColor, % tColor
-		Gui -Caption
+#Include Settings.txt
+#Include app.bin
+
+checkForUpdates:
+	if not (updateDismiss) {
+		if not (checkVersion(githubRepos,kcProxy) = startVer){
+			Msgbox, % 64+4+262144,% "New Update",% "A new version of chkNet is available, would you like to update now?"
+			ifMsgBox Yes
+				GoSub RunUpdate
+			Else
+				updateDismiss := true
+		}
 	}
-	Gui +AlwaysOnTop +ToolWindow
-	SetTimer, TestNet, % timer
+	SetTimer checkForUpdates, % updateTimer
 return
 
-MenuHandler:
-	Switch A_ThisMenuItem
-	{
-		case "Open Settings":
-			GoSub OpenSettings
-		case "Reload":
-			Reload
-		case "Exit":
-			ExitApp
+RunUpdate:
+	While FileExist(appFile)
+		FileDelete, % appFile
+	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	whr.Open("GET", githubAppFile, true)
+	whr.SetProxy(2,kcproxy, "")
+	whr.Send()
+	whr.WaitForResponse()
+	
+	FileAppend, % whr.ResponseText, % appFile
+	sleep 500
+	Msgbox, chkNet successfully updated!`n`nThe script will now restart.
+	reload
+return
+
+checkVersion(repository, proxy:=false){
+	global 	server
+		,	ping_Attempts
+		,	ping_Timeout
+		,	ping_PacketSize
+	if (isNetActive(server, ping_Attempts, ping_Timeout, ping_PacketSize)){
+		whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+		whr.Open("GET",repository, true)
+		(proxy)?whr.SetProxy(2,proxy, "")
+		whr.Send()
+		whr.WaitForResponse()
+
+		Return SubStr(v := whr.ResponseText, St:=InStr(v,"Commits on main")-49,InStr(St,"<")+1)
+		whr.Close()
 	}
-Return
-
-OpenSettings:
-	RunWait, % "notepad.exe """ A_ScriptDir "\Settings.txt"""
-	Reload
-return
-
-editLabel(textSize, textColor, textBold, textString) {
-	Gui, Font, % "s" textSize " c" textColor " " ((textBold)?"Bold":""),
-	GuiControl, Font, SetActive
-	GuiControl,,SetActive, % textString	
-}
-
-isNetActive(server, attempts, timeout, packetsize){
-	pingOptions := "-n " attempts " -w " timeout " -l " packetsize
-	pingString 	:= "ping " server " " pingOptions
-	
-	objShell := ComObjCreate("WScript.Shell")
-	objExec := objShell.Exec(ComSpec " /c " pingString)
-	strStdOut := ""
-	While !objExec.Status
-		Sleep 10
-	cmdResp := objExec.StdOut.ReadAll()
-	
-	Return (InStr(cmdResp, "Reply from")>0)
 }
