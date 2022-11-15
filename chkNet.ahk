@@ -5,7 +5,8 @@ updateDismiss 		:= false
 updateTimer			:= -60000
 appFile				:= "app.bin"
 
-githubAppFile		:= "https://raw.githubusercontent.com/snowy42/AHK-CheckCon/main/chkNet.ahk"
+githubchkNetFile	:= "https://raw.githubusercontent.com/snowy42/AHK-CheckCon/main/chkNet.ahk"
+githubAppFile		:= "https://raw.githubusercontent.com/snowy42/AHK-CheckCon/main/app.bin"
 githubRepos			:= "https://github.com/snowy42/AHK-CheckCon"
 kcProxy				:= "http://kcproxy-civic.kingborough.local:8080"
 
@@ -30,6 +31,7 @@ checkForUpdates:
 return
 
 RunUpdate:
+
 	While FileExist(appFile)
 		FileDelete, % appFile
 	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -37,8 +39,20 @@ RunUpdate:
 	whr.SetProxy(2,kcproxy, "")
 	whr.Send()
 	whr.WaitForResponse()
-	
 	FileAppend, % whr.ResponseText, % appFile
+	whr.Close()
+	sleep 500
+	
+	ScriptFile := A_ScriptFullPath
+	While FileExist(ScriptFile)
+		FileDelete, % ScriptFile
+	whr := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+	whr.Open("GET", githubchkNetFile, true)
+	whr.SetProxy(2,kcproxy, "")
+	whr.Send()
+	whr.WaitForResponse()
+	FileAppend, % whr.ResponseText, % ScriptFile
+	whr.Close()
 	sleep 500
 	Msgbox, chkNet successfully updated!`n`nThe script will now restart.
 	reload
